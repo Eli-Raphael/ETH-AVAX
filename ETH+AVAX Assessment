@@ -1,33 +1,42 @@
 pragma solidity ^0.8.18;
 
-contract OwnershipContract {
+contract AutoDoorContract {
     address public owner;
-    uint256 public value;
+    bool public doorOpen;
+    mapping(address => bool) public authorizedPersonnel;
 
     constructor() {
-        owner = msg.sender;
+        owner = msg.sender;  
     }
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "The owner is the only one who can call this function.");
-        _;
+    function openDoor() public {
+        require(msg.sender == owner || msg.sender == address(this), "Only the owner can open the door");
+        require(!doorOpen, "Door open.");
+        doorOpen = true;
     }
 
-    function setValue(uint256 _value) public onlyOwner {
-        value = _value;
+    function closeDoor() public {
+        require(msg.sender == owner || msg.sender == address(this), "Only the owner can close the door.");
+        require(doorOpen, "Door closed.");
+        doorOpen = false;
     }
 
-    function verifyOwner() public view {
-        require(msg.sender == owner, "The owner is the only one who can call this function.");
-    }
-
-    function verifyOwnerRevert() public view {
+    function revertDoor() public {
         if (msg.sender != owner) {
-            revert("The caller is not the owner.");
+            revert("Only the owner can open/close the door.");
+        }
+        if (doorOpen) {
+            doorOpen = false; 
+            revert("The door is open. Automatically closing the door.");
         }
     }
 
-    function verifyOwnerAssert() public view {
-        assert(msg.sender == owner);
+    function assertDoor() public view {
+        require(msg.sender == owner || msg.sender == address(this), "Only the owner can open/close the door.");
+        assert(!doorOpen); 
+    }
+
+    function checkDoorStatus() public view returns (bool) {
+        return doorOpen;
     }
 }
