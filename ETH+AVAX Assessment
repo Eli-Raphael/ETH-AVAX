@@ -1,0 +1,33 @@
+pragma solidity ^0.8.18;
+
+contract OwnershipContract {
+    address public owner;
+    uint256 public value;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "The owner is the only one who can call this function.");
+        _;
+    }
+
+    function setValue(uint256 _value) public onlyOwner {
+        value = _value;
+    }
+
+    function verifyOwner() public view {
+        require(msg.sender == owner, "The owner is the only one who can call this function.");
+    }
+
+    function verifyOwnerRevert() public view {
+        if (msg.sender != owner) {
+            revert("The caller is not the owner.");
+        }
+    }
+
+    function verifyOwnerAssert() public view {
+        assert(msg.sender == owner);
+    }
+}
